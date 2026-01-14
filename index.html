@@ -1222,6 +1222,57 @@ body {
   color: #64748b;
   font-weight: 500;
 }
+/* Inline Paste Styles */
+.paste-row.expanded {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent; /* Visually merge */
+  background: #f8fafc;
+  border-color: #4f46e5;
+}
+.paste-input-container {
+  display: none;
+  border: 1px solid #4f46e5;
+  border-top: none;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  padding: 0 24px 24px 24px;
+  background: #f8fafc;
+  margin-top: -1px;
+  animation: slideDown 0.2s ease-out;
+}
+.paste-input-container.active {
+  display: block;
+}
+.paste-input-textarea {
+  width: 100%;
+  height: 200px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  background: white;
+  outline: none;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.paste-input-textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+.paste-arrow {
+  transition: transform 0.2s;
+}
+.paste-row.expanded .paste-arrow {
+  transform: rotate(180deg);
+  color: #4f46e5;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>
 </head>
 <body>
@@ -1669,7 +1720,12 @@ body {
             <p>用于临时分析或补充信息</p>
           </div>
         </div>
-        <svg class="icon-svg" style="width: 20px; height: 20px; color: #cbd5e1;" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+        <svg class="icon-svg paste-arrow" style="width: 20px; height: 20px; color: #cbd5e1;" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+      
+      <!-- 粘贴文本输入区域 (Inline) -->
+      <div class="paste-input-container" id="pasteInputArea">
+        <textarea class="paste-input-textarea" id="pasteTextInputInline" placeholder="在此处粘贴文本，系统将自动进行结构化分析..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -1808,44 +1864,6 @@ body {
   </div>
 </div>
 
-<!-- 粘贴文本模态窗 -->
-<div class="modal-overlay" id="pasteTextModal">
-  <div class="modal-content" style="max-width: 600px;">
-    <div class="modal-header">
-        <div class="modal-brand">
-            <div class="modal-brand-icon">
-                <svg class="icon-svg" style="width: 20px; height: 20px; color: white;" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-            </div>
-            <span>AI主动健康管理</span>
-        </div>
-      <button class="modal-close" id="closePasteTextModalBtn">
-        <svg class="icon-svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-    </div>
-    
-    <div class="modal-subheader">
-        <button class="modal-back-btn" id="backToNewTaskFromPasteBtn">
-            <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
-            粘贴文本
-        </button>
-        <div style="margin-top: 8px; font-size: 14px; color: #3b82f6;">
-            将复制的文本粘贴到下方，作为AI主动健康管理的数据源
-        </div>
-    </div>
-
-    <div class="modal-body">
-      <div class="form-group" style="margin-bottom: 0;">
-        <textarea class="form-control" id="pasteTextInput" placeholder="在此处粘贴文本*" style="height: 300px; resize: none; padding: 16px; font-size: 14px; line-height: 1.6;"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer" style="justify-content: flex-end; border-top: none; padding-top: 0;">
-      <button class="btn-modal-primary" id="btnConfirmPaste" style="width: auto; padding-left: 32px; padding-right: 32px;">
-        插入
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- 隐藏的文件上传 Input -->
 <input type="file" id="systemFileInput" style="display: none;" />
 
@@ -1964,9 +1982,20 @@ sourceCards.forEach(function(card) {
     sourceCards.forEach(function(c) {
       c.classList.remove("selected");
     });
+    // 收起粘贴文本区域
+    if (btnPasteText) {
+      btnPasteText.classList.remove("expanded");
+    }
+    if (pasteInputArea) {
+      pasteInputArea.classList.remove("active");
+    }
+
     // 选中当前
     this.classList.add("selected");
     
+    // 更新按钮状态
+    checkStartButtonState();
+
     // 立即进入对应的二级弹窗或系统上传
     if (this.id === "cardSourceDb") {
       openConnectDbModal();
@@ -1989,58 +2018,53 @@ if (systemFileInput) {
   });
 }
 
-// 粘贴文本相关逻辑
+// 粘贴文本相关逻辑 (Inline)
 var btnPasteText = document.getElementById("btnPasteText");
-var pasteTextModal = document.getElementById("pasteTextModal");
-var closePasteTextModalBtn = document.getElementById("closePasteTextModalBtn");
-var backToNewTaskFromPasteBtn = document.getElementById("backToNewTaskFromPasteBtn");
-var btnConfirmPaste = document.getElementById("btnConfirmPaste");
-var pasteTextInput = document.getElementById("pasteTextInput");
-
-function openPasteTextModal() {
-  newTaskModal.classList.remove("active");
-  pasteTextModal.classList.add("active");
-  document.body.style.overflow = "hidden";
-}
-
-function closePasteTextModal() {
-  pasteTextModal.classList.remove("active");
-  document.body.style.overflow = "";
-}
-
-function backToNewTaskFromPaste() {
-  pasteTextModal.classList.remove("active");
-  newTaskModal.classList.add("active");
-}
+var pasteInputArea = document.getElementById("pasteInputArea");
+var pasteTextInputInline = document.getElementById("pasteTextInputInline");
 
 if (btnPasteText) {
-  btnPasteText.addEventListener("click", openPasteTextModal);
-}
-if (closePasteTextModalBtn) {
-  closePasteTextModalBtn.addEventListener("click", closePasteTextModal);
-}
-if (backToNewTaskFromPasteBtn) {
-  backToNewTaskFromPasteBtn.addEventListener("click", backToNewTaskFromPaste);
-}
-if (pasteTextModal) {
-  pasteTextModal.addEventListener("click", function(e) {
-    if (e.target === pasteTextModal) {
-      closePasteTextModal();
+  btnPasteText.addEventListener("click", function() {
+    // 切换展开状态
+    var isExpanded = this.classList.contains("expanded");
+    
+    if (isExpanded) {
+      this.classList.remove("expanded");
+      pasteInputArea.classList.remove("active");
+    } else {
+      this.classList.add("expanded");
+      pasteInputArea.classList.add("active");
+      // 自动聚焦
+      setTimeout(function() {
+        pasteTextInputInline.focus();
+      }, 200);
+
+      // 取消其他卡片的选中状态
+      sourceCards.forEach(function(c) {
+        c.classList.remove("selected");
+      });
     }
+    checkStartButtonState();
   });
 }
-if (btnConfirmPaste) {
-  btnConfirmPaste.addEventListener("click", function() {
-    var text = pasteTextInput.value.trim();
-    if (!text) {
-      alert("请先输入文本");
-      return;
-    }
-    alert("已获取文本内容 (长度: " + text.length + ")\n(此处可对接后续分析逻辑)");
-    closePasteTextModal();
-    // 可以选择清空输入框
-    pasteTextInput.value = "";
-  });
+
+if (pasteTextInputInline) {
+  pasteTextInputInline.addEventListener("input", checkStartButtonState);
+}
+
+// 检查开始分析按钮的状态
+function checkStartButtonState() {
+  if (!btnStartAnalysis) return;
+  
+  var isCardSelected = document.querySelector(".source-card.selected");
+  var isPasteActive = pasteInputArea && pasteInputArea.classList.contains("active");
+  var hasText = pasteTextInputInline && pasteTextInputInline.value.trim().length > 0;
+
+  if (isCardSelected || (isPasteActive && hasText)) {
+    btnStartAnalysis.disabled = false;
+  } else {
+    btnStartAnalysis.disabled = true;
+  }
 }
 
 if (btnStartAnalysis) {
@@ -2054,15 +2078,18 @@ if (btnStartAnalysis) {
     } else if (cardSourceFile && cardSourceFile.classList.contains("selected")) {
       openImportFileModal();
     } else {
-      // 可以在这里处理其他选项，或者提示选择
-      // 暂时只处理数据库连接
-      var selected = document.querySelector(".source-card.selected");
-      if (!selected) {
-        alert("请先选择一个数据来源");
-      } else {
-        // 如果是其他卡片，提示暂未实现
-        alert("该功能正在开发中");
+      // 检查是否是粘贴文本
+      if (pasteInputArea && pasteInputArea.classList.contains("active")) {
+         var text = pasteTextInputInline.value.trim();
+         if (text) {
+           alert("已获取粘贴文本内容 (长度: " + text.length + ")\n(此处可对接后续分析逻辑)");
+           // 可以在这里跳转或进行其他操作
+           return;
+         }
       }
+
+      // 兜底提示
+      alert("请先选择一个数据来源或输入文本");
     }
   });
 }
