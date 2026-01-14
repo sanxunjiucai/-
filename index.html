@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>运营任务示例页</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #1f2933;
+  /* 使用用户提供的背景图片 */
+  background: url('背景.png') no-repeat center center fixed;
+  background-size: cover;
+}
+body {
+  display: block; /* 取消flex居中，让页面自然流式布局 */
+  padding: 88px 40px 24px; /* 增加顶部留白，为固定顶栏腾出空间 (64px + 24px) */
+  overflow-y: auto;
+}
+.app-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 20px rgba(30, 41, 59, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 1000;
+}
+.app-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app-logo {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 10px rgba(67, 56, 202, 0.2);
+}
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e1b4b;
+  letter-spacing: -0.01em;
+}
+.app-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+.user-profile:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e0e7ff;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4338ca;
+  font-weight: 600;
+  font-size: 14px;
+}
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+}
+.page {
+  width: 100%;
+  max-width: 1600px; /* 加宽最大宽度 */
+  margin: 0 auto;
+  /* 移除原本的白色大盒子样式，改为透明 */
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  backdrop-filter: none;
+  padding: 0;
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.page-header-title h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e1b4b; /* 深靛蓝标题 */
+}
+.page-header-title span {
+  font-size: 14px;
+  color: #4338ca; /* 辅助文字改为深紫色 */
+  opacity: 0.8;
+}
+.page-header-link {
+  font-size: 14px;
+  color: #4338ca;
+  font-weight: 500;
+}
+.recommend-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+.recommend-card {
+  /* 推荐卡片样式微调，增加悬浮感 */
+  box-shadow: 0 10px 20px rgba(30, 58, 138, 0.15);
+  transition: transform 0.2s;
+  height: 200px;
+  border-radius: 24px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+.recommend-card-inner {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6));
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+}
+.recommend-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.recommend-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.recommend-meta {
+  text-align: right;
+  font-size: 12px;
+  opacity: 0.95;
+  line-height: 1.4;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.badge {
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.badge-secondary {
+  background: rgba(30, 41, 59, 0.4);
+  border-color: rgba(255,255,255,0.2);
+  color: #e2e8f0;
+}
+.recommend-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.recommend-stats-left {
+  font-size: 12px;
+  opacity: 0.9;
+}
+.recommend-stats-metric {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+.recommend-price {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.recommend-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 24px rgba(30, 58, 138, 0.2);
+}
+
+.workspace-header {
+  display: flex; /* 改为 Flex 布局更灵活 */
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  gap: 24px;
+}
+.workspace-title-block h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e1b4b;
+}
+.workspace-title-block p {
+  font-size: 13px;
+  color: #4b5563; /* 加深一点 */
+}
+/* 移除原来的 metric 白色块设计，改为直接展示 */
+.workspace-metrics {
+  display: flex;
+  gap: 24px;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+.metric {
+  padding: 0;
+  background: transparent;
+  min-width: auto;
+  border-radius: 0;
+}
+.metric-label {
+  color: #4b5563;
+}
+.metric-value {
+  color: #1e1b4b;
+  font-size: 16px;
+}
+
+.workspace-toolbar {
+  /* 工具栏改为通透的玻璃条 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  margin-bottom: 20px;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 4px;
+  border-radius: 10px;
+}
+.tab {
+  padding: 6px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  transition: all 0.2s;
+}
+.tab:hover {
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.5);
+}
+.tab-active {
+  background: #ffffff !important;
+  color: #4f46e5 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+/* 视图切换按钮样式 */
+.view-toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 4px;
+  border-radius: 10px;
+  gap: 2px;
+}
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+.view-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.5);
+  color: #1e293b;
+}
+.view-toggle-btn-active {
+  background: #ffffff !important;
+  color: #4f46e5 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.view-toggle-btn .icon-svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* 新版卡片布局样式 */
+.task-row-inner {
+  margin-left: 0;
+  border-radius: 24px; /* 更圆润 */
+  padding: 20px;
+  /* 保持磨砂玻璃质感，但背景更通透 */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 32px rgba(30, 41, 59, 0.05);
+  height: 100%;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.task-row-inner:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(30, 41, 59, 0.1);
+}
+
+/* 顶部布局：标签左对齐，人数右对齐 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 2;
+}
+.card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  opacity: 0.9;
+}
+
+/* 标签样式重置 */
+.tag {
+  margin-left: 0;
+  padding: 6px 14px;
+  border-radius: 20px; /* 全圆角 */
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  display: inline-block;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+/* 标题与信息区域 */
+.card-body {
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+.task-title {
+  font-size: 18px; /* 稍微加大 */
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+.task-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+.task-info-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* 进度条区域 */
+.card-progress {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 2;
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+.progress-label {
+  font-weight: 500;
+}
+.progress-track {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #4f46e5; /* 统一使用深靛蓝 */
+}
+
+/* 洞察/高亮区域 (New Insight Box) */
+.insight-box {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.5;
+  border: 1px solid rgba(255,255,255,0.6);
+  position: relative;
+  z-index: 2;
+}
+.insight-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* 底部区域 */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: relative;
+  z-index: 2;
+  padding-top: 4px;
+}
+.metric-big {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  color: #1e293b; /* 统一深色 */
+}
+/* 移除 metric-label-small 的样式或保留备用，但HTML中不再使用 */
+.metric-label-small {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+/* 新建任务卡片样式 */
+.task-card-new {
+  border: 2px dashed rgba(148, 163, 184, 0.4);
+  background: rgba(248, 250, 252, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 280px; /* Match new card height */
+  border-radius: 24px;
+  text-align: center;
+  padding: 24px;
+}
+.task-card-new:hover {
+  background: rgba(248, 250, 252, 0.8);
+  border-color: #818cf8;
+  transform: translateY(-2px);
+}
+.new-task-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+.new-task-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+.new-task-sub {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* 线性图标通用样式 */
+.icon-svg,
+.icon-svg-sm {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+.icon-svg {
+  width: 16px;
+  height: 16px;
+}
+.icon-svg-sm {
+  width: 14px;
+  height: 14px;
+}
+
+/* 颜色映射与顶部微渐变 */
+/* 1. 创收 (Revenue) - 橙色系 */
+.task-type-revenue .tag { background: #ffedd5; color: #c2410c; }
+.task-type-revenue .insight-icon { color: #f59e0b; }
+.task-type-revenue .task-row-inner::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 80px; /* 微渐变，高度减小 */
+  background: linear-gradient(to bottom, rgba(255, 237, 213, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 2. 随访 (Followup) - 蓝色系 */
+.task-type-followup .tag { background: #dbeafe; color: #1d4ed8; }
+.task-type-followup .insight-icon { color: #3b82f6; }
+.task-type-followup .task-row-inner::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, rgba(219, 234, 254, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 3. 宣教 (Education) - 绿色系 */
+.task-type-education .tag { background: #d1fae5; color: #047857; }
+.task-type-education .insight-icon { color: #10b981; }
+.task-type-education .task-row-inner::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, rgba(209, 250, 229, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 统一进度条颜色 */
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #4f46e5; /* 统一使用深靛蓝 */
+}
+
+/* 统一底部大数字颜色（不使用彩色） */
+.metric-big {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  color: #1e293b; /* 统一深色 */
+}
+
+/* 优化标题行布局 */
+.task-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-chip {
+  /* 状态标签样式微调，更轻盈 */
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  font-weight: 500;
+}
+.status-running {
+  color: #059669;
+  background: rgba(209, 250, 229, 0.6);
+}
+.status-warning {
+  color: #d97706;
+  background: rgba(254, 243, 199, 0.6);
+}
+.status-alert {
+  color: #dc2626;
+  background: rgba(254, 226, 226, 0.6);
+}
+
+.task-meta {
+  color: #5b637a; /* 稍微加深 */
+}
+.task-metric-label {
+  color: #64748b;
+}
+.task-metric-value {
+  color: #1e293b;
+  font-size: 17px; /* 稍微加大数字 */
+}
+.task-amount {
+  color: #0d9488; /* 这里的绿色改为偏青色，更协调 */
+  font-size: 16px;
+}
+
+/* 按钮样式优化：更通透 */
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  color: #475569;
+}
+.btn-ghost:hover {
+  background: #fff;
+  border-color: #94a3b8;
+}
+.btn-ghost-primary {
+  background: rgba(238, 242, 255, 0.8);
+  border-color: rgba(199, 210, 254, 0.8);
+  color: #4f46e5;
+  font-weight: 500;
+}
+.btn-ghost-primary:hover {
+  background: #eef2ff;
+  border-color: #818cf8;
+}
+
+/* 列表视图适配 */
+.task-list.view-list {
+  display: block;
+}
+.task-list.view-list .task-row-inner {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin-bottom: 8px;
+}
+.task-list.view-list .task-row-inner::after {
+  display: none; /* 列表模式不需要顶部渐变 */
+}
+
+/* 强制卡片视图为横向4列 */
+.task-list.view-card {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.task-panel {
+  margin-top: 6px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  background: transparent; /* 容器透明，内容自适应 */
+  border: none;
+  overflow: visible;
+  padding: 0;
+}
+
+
+.empty-state {
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+.empty-state strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 15px;
+  color: #111827;
+}
+.hidden {
+  display: none;
+}
+@media (max-width: 1200px) {
+  .recommend-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .workspace-header {
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 2fr);
+    grid-template-rows: auto auto;
+  }
+  .workspace-actions {
+    grid-column: 1 / -1;
+  }
+  .task-list.view-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  body {
+    padding: 12px;
+  }
+  .page {
+    padding: 18px 16px 24px;
+    border-radius: 18px;
+  }
+  .recommend-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace-header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace-metrics {
+    flex-wrap: wrap;
+  }
+  .workspace-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .task-list.view-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .task-actions {
+    align-items: flex-start;
+  }
+}
+/* 模态窗样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.modal-content {
+  background: #ffffff;
+  width: 900px;
+  max-width: 95vw;
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+}
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+}
+.modal-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.modal-title h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.modal-title h3::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 16px;
+  background: #cbd5e1;
+}
+.modal-title h3 span {
+  color: #64748b;
+  font-weight: 500;
+}
+.modal-subtitle {
+  font-size: 14px;
+  color: #64748b;
+}
+.modal-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.modal-close:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+.modal-body {
+  padding: 32px;
+  background: #f8fafc;
+}
+.source-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.source-card {
+  background: #fff;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+.source-card:hover {
+  border-color: #4f46e5;
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.15);
+}
+.source-card.selected {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+.source-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.source-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.source-icon-db {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+.source-icon-file {
+  background: #f1f5f9;
+  color: #475569;
+}
+.source-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+.source-desc {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+.source-action-area {
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  background: #f8fafc;
+  transition: all 0.2s;
+}
+.source-card:hover .source-action-area {
+  border-color: #cbd5e1;
+  background: #fff;
+}
+.source-action-icon {
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+.source-action-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 4px;
+}
+.source-action-sub {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.source-info {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 16px;
+  padding-left: 12px;
+  border-left: 2px solid #e2e8f0;
+}
+.source-info div {
+  margin-bottom: 4px;
+}
+.source-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.tag-success {
+  color: #4f46e5;
+}
+.tag-warning {
+  color: #d97706;
+}
+.paste-row {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #e2e8f0;
+}
+.paste-row:hover {
+  border-color: #4f46e5;
+  background: #f8fafc;
+}
+.paste-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.paste-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.paste-content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+.paste-content p {
+  font-size: 12px;
+  color: #64748b;
+}
+.modal-footer {
+  padding: 20px 32px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.btn-modal-ghost {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-modal-ghost:hover {
+  background: #f8fafc;
+  color: #4f46e5;
+  border-color: #4f46e5;
+}
+.btn-modal-primary {
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.btn-modal-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+}
+@media (max-width: 900px) {
+  .source-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* Connect DB Modal Styles */
+.modal-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0;
+  flex: 1;
+}
+.modal-brand-icon {
+  width: 28px;
+  height: 28px;
+  background: #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+}
+.modal-subheader {
+  padding: 0 32px;
+  margin-bottom: 24px;
+}
+.modal-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+.modal-back-btn:hover {
+  color: #4f46e5;
+}
+.warning-box {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.warning-icon {
+  color: #f97316;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.warning-title {
+  font-weight: 600;
+  color: #9a3412;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+.warning-steps {
+  font-size: 12px;
+  color: #c2410c;
+  line-height: 1.5;
+}
+.step-arrow {
+  margin: 0 4px;
+  color: #fdba74;
+  font-weight: bold;
+}
+.db-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+.form-control {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s;
+  background: white;
+}
+.form-control:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+/* Import File Modal Styles */
+.upload-area {
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  transition: all 0.2s;
+  cursor: pointer;
+  margin-bottom: 24px;
+}
+.upload-area:hover {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+.upload-icon {
+  color: #94a3b8;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+.upload-area:hover .upload-icon {
+  color: #4f46e5;
+}
+.upload-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+.upload-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+.file-types {
+  display: flex;
+  gap: 12px;
+}
+.file-type-badge {
+  padding: 4px 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+<nav class="app-navbar">
+  <div class="app-navbar-left">
+    <div class="app-logo">
+      <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+    </div>
+    <div class="app-title">主动健康管理平台</div>
+  </div>
+  <div class="app-navbar-right">
+    <div class="user-profile">
+      <div class="user-avatar">DR</div>
+      <span class="user-name">Dr. Wang</span>
+    </div>
+  </div>
+</nav>
+<div class="page">
+  <header class="page-header">
+    <div class="page-header-title">
+      <h1>推荐运营任务</h1>
+      <span>适合当前院内人群的任务组合</span>
+    </div>
+    <div class="page-header-link">查看全部<span>›</span></div>
+  </header>
+  <section class="recommend-grid">
+    <article class="recommend-card" style="background-image:url('https://images.pexels.com/photos/7551678/pexels-photo-7551678.jpeg?auto=compress&cs=tinysrgb&w=800');">
+      <div class="recommend-card-inner">
+        <div class="recommend-card-top">
+          <span class="badge">高血压代谢</span>
+          <div class="recommend-meta">
+            <div>适用人群 55–80 岁</div>
+            <div>三甲医院验证方案</div>
+          </div>
+        </div>
+        <div>
+          <div class="recommend-name">高血压随访管理套餐</div>
+          <div class="recommend-stats">
+            <div class="recommend-stats-left">
+              <div class="recommend-stats-metric">
+                <span>覆盖 356 人</span>
+                <span>血压达标率 ↑18%</span>
+              </div>
+              <div>执行时长 3 个月 · 自动随访</div>
+            </div>
+            <div class="recommend-price">¥ 46,800</div>
+          </div>
+        </div>
+      </div>
+    </article>
+    <article class="recommend-card" style="background-image:url('https://images.pexels.com/photos/6129685/pexels-photo-6129685.jpeg?auto=compress&cs=tinysrgb&w=800');">
+      <div class="recommend-card-inner">
+        <div class="recommend-card-top">
+          <span class="badge badge-secondary">慢病优化</span>
+          <div class="recommend-meta">
+            <div>适用人群 40–70 岁</div>
+            <div>院外随访强化</div>
+          </div>
+        </div>
+        <div>
+          <div class="recommend-name">血糖管理随访计划</div>
+          <div class="recommend-stats">
+            <div class="recommend-stats-left">
+              <div class="recommend-stats-metric">
+                <span>执行 189 人</span>
+                <span>HbA1c 达标率 ↑22%</span>
+              </div>
+              <div>含教育课程 · 智能提醒</div>
+            </div>
+            <div class="recommend-price">¥ 39,800</div>
+          </div>
+        </div>
+      </div>
+    </article>
+    <article class="recommend-card" style="background-image:url('https://images.pexels.com/photos/8454513/pexels-photo-8454513.jpeg?auto=compress&cs=tinysrgb&w=800');">
+      <div class="recommend-card-inner">
+        <div class="recommend-card-top">
+          <span class="badge">科室协同</span>
+          <div class="recommend-meta">
+            <div>适用心内/内分泌</div>
+            <div>跨科室协作方案</div>
+          </div>
+        </div>
+        <div>
+          <div class="recommend-name">心血管危险分层管理</div>
+          <div class="recommend-stats">
+            <div class="recommend-stats-left">
+              <div class="recommend-stats-metric">
+                <span>目标 120 人</span>
+                <span>预估复诊率 ↑15%</span>
+              </div>
+              <div>含风险评估和转诊提醒</div>
+            </div>
+            <div class="recommend-price">¥ 33,500</div>
+          </div>
+        </div>
+      </div>
+    </article>
+    <article class="recommend-card" style="background-image:url('https://images.pexels.com/photos/3958374/pexels-photo-3958374.jpeg?auto=compress&cs=tinysrgb&w=800');">
+      <div class="recommend-card-inner">
+        <div class="recommend-card-top">
+          <span class="badge badge-secondary">老年管理</span>
+          <div class="recommend-meta">
+            <div>适用人群 65+ 岁</div>
+            <div>多病共管设计</div>
+          </div>
+        </div>
+        <div>
+          <div class="recommend-name">老年慢病综合管理计划</div>
+          <div class="recommend-stats">
+            <div class="recommend-stats-left">
+              <div class="recommend-stats-metric">
+                <span>覆盖 98 人</span>
+                <span>跌倒风险评估</span>
+              </div>
+              <div>含家属教育与照护手册</div>
+            </div>
+            <div class="recommend-price">¥ 51,200</div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+  <div class="divider"></div>
+  <section class="workspace">
+    <div class="workspace-header">
+      <div class="workspace-title-block">
+        <h2>运行中任务</h2>
+        <p>当前正在执行的运营任务列表，可按状态与领域筛选</p>
+      </div>
+      <div class="workspace-metrics">
+        <div class="metric">
+          <div class="metric-label">运行中任务</div>
+          <div class="metric-value">12 个</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">覆盖患者</div>
+          <div class="metric-value">1,284 人</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">异常任务</div>
+          <div class="metric-value metric-accent">3 个</div>
+        </div>
+      </div>
+      <div class="workspace-actions">
+        <!-- 移除新建任务和从推荐创建按钮 -->
+      </div>
+    </div>
+    <div class="workspace-toolbar">
+      <div class="tabs" id="tabs">
+        <button class="tab tab-active" data-filter="all">全部</button>
+        <button class="tab" data-filter="revenue">创收</button>
+        <button class="tab" data-filter="followup">随访</button>
+        <button class="tab" data-filter="education">宣教</button>
+      </div>
+      <div class="workspace-tools">
+        <!-- 移除排序下拉框 -->
+        <div class="view-toggle" id="viewToggle">
+          <button class="view-toggle-btn" data-view="list" title="列表视图">
+            <svg class="icon-svg" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+          <button class="view-toggle-btn view-toggle-btn-active" data-view="card" title="卡片视图">
+            <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="task-panel">
+      <!-- 移除 task-panel 上的硬编码样式，改用 CSS 控制 -->
+      <div class="task-list view-card" id="taskList">
+        <!-- 新建任务卡片 (始终在第一个) -->
+        <div class="task-card-new">
+          <div class="new-task-icon">
+            <svg class="icon-svg" style="width: 24px; height: 24px; stroke-width: 1.5;" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          </div>
+          <div class="new-task-text">新建任务</div>
+          <div class="new-task-sub">利用医疗数据生成运营方案</div>
+        </div>
+
+        <!-- 1. 创收类 -->
+        <div class="task-row task-row-accent task-type-revenue" data-domain="revenue" data-status="running" data-coverage="156" data-revenue="46800" data-updated="202401021020">
+          <div class="task-row-inner">
+            <div class="card-header">
+              <span class="tag">创收</span>
+              <div class="card-header-right">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>156人</span>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <div class="task-title">代谢综合征患者综合管理任务</div>
+              <div class="task-info-row">
+                <svg class="icon-svg-sm" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+                <div class="task-info-text">代谢综合征高风险患者，同时伴肾功能早期损害...</div>
+              </div>
+              <div class="task-info-row">
+                <svg class="icon-svg-sm" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                <div class="task-info-text">2026-01-14 ~ 2周</div>
+              </div>
+            </div>
+
+            <div class="card-progress">
+              <div class="progress-header">
+                <span>任务进度</span>
+                <span class="progress-label">27%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: 27%"></div>
+              </div>
+            </div>
+
+            <div class="insight-box">
+              <svg class="icon-svg-sm insight-icon" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
+              <div>该患者为高风险的代谢综合征，BMI 30.84...</div>
+            </div>
+
+            <div class="card-footer">
+              <div class="metric-big">¥ 46,800</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. 宣教类 -->
+        <div class="task-row task-row-accent task-type-education" data-domain="education" data-status="running" data-coverage="89" data-revenue="0" data-updated="202401021200">
+          <div class="task-row-inner">
+            <div class="card-header">
+              <span class="tag">宣教</span>
+              <div class="card-header-right">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>89人</span>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <div class="task-title">糖尿病饮食与运动健康宣教</div>
+              <div class="task-info-row">
+                <svg class="icon-svg-sm" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+                <div class="task-info-text">针对2型糖尿病患者的冬季饮食指南...</div>
+              </div>
+              <div class="task-info-row">
+                <svg class="icon-svg-sm" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                <div class="task-info-text">2026-01-10 ~ 1周</div>
+              </div>
+            </div>
+
+            <div class="card-progress">
+              <div class="progress-header">
+                <span>任务进度</span>
+                <span class="progress-label">65%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: 65%"></div>
+              </div>
+            </div>
+
+            <div class="insight-box">
+              <svg class="icon-svg-sm insight-icon" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
+              <div>阅读率显著提升，建议增加视频内容...</div>
+            </div>
+
+            <div class="card-footer">
+              <div class="metric-big">85%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 随访类 -->
+        <div class="task-row task-row-accent task-type-followup" data-domain="followup" data-status="running" data-coverage="210" data-revenue="12500" data-updated="202401010900">
+          <div class="task-row-inner">
+            <div class="card-header">
+              <span class="tag">随访</span>
+              <div class="card-header-right">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>210人</span>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <div class="task-title">出院患者30天复诊计划</div>
+              <div class="task-info-row">
+                <svg class="icon-svg-sm" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+                <div class="task-info-text">心内科/呼吸科出院患者自动随访...</div>
+              </div>
+              <div class="task-info-row">
+                <svg class="icon-svg-sm" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                <div class="task-info-text">长期执行</div>
+              </div>
+            </div>
+
+            <div class="card-progress">
+              <div class="progress-header">
+                <span>任务进度</span>
+                <span class="progress-label">42%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: 42%"></div>
+              </div>
+            </div>
+
+            <div class="insight-box">
+              <svg class="icon-svg-sm insight-icon" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
+              <div>复诊预约率较上月提升12%，持续优化...</div>
+            </div>
+
+            <div class="card-footer">
+              <div class="metric-big">¥ 12,500</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. 随访类 (原疾病管理) -->
+        <div class="task-row task-row-warning task-type-followup" data-domain="followup" data-status="warning" data-coverage="45" data-revenue="8900" data-updated="202401031500">
+          <div class="task-row-inner">
+            <div class="card-header">
+              <span class="tag">随访</span>
+              <div class="card-header-right">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>45人</span>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <div class="task-title">冠心病风险筛查</div>
+              <div class="task-info-row">
+                <svg class="icon-svg-sm" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+                <div class="task-info-text">体检异常人群筛查与干预...</div>
+              </div>
+              <div class="task-info-row">
+                <svg class="icon-svg-sm" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                <div class="task-info-text">2026-01-05 ~ 3周</div>
+              </div>
+            </div>
+
+            <div class="card-progress">
+              <div class="progress-header">
+                <span>任务进度</span>
+                <span class="progress-label">40%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: 40%"></div>
+              </div>
+            </div>
+
+            <div class="insight-box">
+              <svg class="icon-svg-sm insight-icon" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
+              <div>高危人群识别率达95%，需加强随访...</div>
+            </div>
+
+            <div class="card-footer">
+              <div class="metric-big">¥ 63,000</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="empty-state hidden" id="emptyState">
+        <strong>暂无符合条件的任务</strong>
+        可尝试调整筛选条件，或通过右上角“新建任务”创建新任务。
+      </div>
+    </div>
+  </section>
+</div>
+<!-- 新建任务模态窗 -->
+<div class="modal-overlay" id="newTaskModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">
+        <h3>新建任务 <span>连接数据源</span></h3>
+        <p class="modal-subtitle">请选择任务所使用的数据来源，AI 将基于数据自动分析并生成可执行的管理任务</p>
+      </div>
+      <button class="modal-close" id="closeModalBtn">
+        <svg class="icon-svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="source-grid">
+        <!-- 选项1：连接医院数据源 -->
+        <div class="source-card" id="cardSourceDb">
+          <div class="source-card-header">
+            <div class="source-icon source-icon-db">
+              <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+            </div>
+            <div>
+              <div class="source-title">连接医院数据源</div>
+              <div class="source-desc">用于批量患者分析与长期运行任务</div>
+            </div>
+          </div>
+          <div class="source-action-area">
+            <div class="source-action-icon">
+              <svg class="icon-svg" style="width: 32px; height: 32px;" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="source-action-text">配置数据源连接</div>
+            <div class="source-action-sub">支持: Oracle / MySQL / PostgreSQL</div>
+          </div>
+          <div class="source-info">
+            <div>可选数据源:</div>
+            <div>• 医院业务系统: HIS / EMR / LIS / PACS</div>
+            <div>• 医院数据平台: CDR / ODR / RDR</div>
+          </div>
+          <div class="source-tag tag-success">
+            <svg class="icon-svg" style="width: 16px; height: 16px;" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            适用于长期运行任务
+          </div>
+        </div>
+
+        <!-- 选项2：上传医疗文档 -->
+        <div class="source-card" id="cardSourceFile">
+          <div class="source-card-header">
+            <div class="source-icon source-icon-file">
+              <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div>
+              <div class="source-title">上传医疗文档 (快速分析)</div>
+              <div class="source-desc">适用于单次分析，无需对接医院系统</div>
+            </div>
+          </div>
+          <div class="source-action-area">
+            <div class="source-action-icon">
+              <svg class="icon-svg" style="width: 32px; height: 32px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="source-action-text">点击或拖拽上传</div>
+            <div class="source-action-sub">支持: PDF / Word / Excel</div>
+          </div>
+          <div class="source-info">
+            <div>示例:</div>
+            <div>• 体检报告 / 检查报告</div>
+            <div>• 患者清单 Excel</div>
+          </div>
+          <div class="source-tag tag-warning">
+            <svg class="icon-svg" style="width: 16px; height: 16px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            不适用于长期运行任务
+          </div>
+        </div>
+      </div>
+
+      <!-- 选项3：粘贴文本 -->
+      <div class="paste-row">
+        <div class="paste-left">
+          <div class="paste-icon">
+            <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+          </div>
+          <div class="paste-content">
+            <h4>粘贴医疗文本</h4>
+            <p>用于临时分析或补充信息</p>
+          </div>
+        </div>
+        <svg class="icon-svg" style="width: 20px; height: 20px; color: #cbd5e1;" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-ghost" id="cancelModalBtn">稍后添加</button>
+      <button class="btn-modal-primary" id="btnStartAnalysis">
+        <svg class="icon-svg" style="width: 16px; height: 16px;" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
+        开始分析
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 连接数据库模态窗 -->
+<div class="modal-overlay" id="connectDbModal">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header">
+        <div class="modal-brand">
+            <div class="modal-brand-icon">
+                <svg class="icon-svg" style="width: 20px; height: 20px; color: white;" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </div>
+            <span>AI主动健康管理</span>
+        </div>
+      <button class="modal-close" id="closeConnectDbModalBtn">
+        <svg class="icon-svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    
+    <div class="modal-subheader">
+        <button class="modal-back-btn" id="backToNewTaskBtn">
+            <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+            连接数据库
+        </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="warning-box">
+        <div class="warning-icon">
+            <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="warning-content">
+            <div class="warning-title">连接数据库将自动执行以下步骤</div>
+            <div class="warning-steps">
+                数据治理 (约24-48小时) <span class="step-arrow">→</span> 数据库学习 (约10-13小时) <span class="step-arrow">→</span> 数据分析 (约5-8小时)
+            </div>
+        </div>
+      </div>
+
+      <form class="db-form">
+        <div class="form-group">
+            <label>数据库类型</label>
+            <select class="form-control">
+                <option>请选择数据库类型</option>
+                <option value="mysql">MySQL</option>
+                <option value="postgresql">PostgreSQL</option>
+                <option value="oracle">Oracle</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>主机地址</label>
+                <input type="text" class="form-control" placeholder="例如: localhost">
+            </div>
+            <div class="form-group">
+                <label>端口号</label>
+                <input type="text" class="form-control" placeholder="例如: 3306">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>数据库名称</label>
+                <input type="text" class="form-control" placeholder="请输入数据库名称">
+            </div>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" class="form-control" placeholder="请输入用户名">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>密码</label>
+            <input type="password" class="form-control" placeholder="请输入密码">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer" style="justify-content: center; border-top: none; padding-top: 0;">
+      <button class="btn-modal-primary" style="width: 100%; justify-content: center;">
+        <svg class="icon-svg" style="width: 16px; height: 16px;" viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+        连接数据库
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 导入文件模态窗 -->
+<div class="modal-overlay" id="importFileModal">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header">
+        <div class="modal-brand">
+            <div class="modal-brand-icon">
+                <svg class="icon-svg" style="width: 20px; height: 20px; color: white;" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </div>
+            <span>AI主动健康管理</span>
+        </div>
+      <button class="modal-close" id="closeImportFileModalBtn">
+        <svg class="icon-svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    
+    <div class="modal-subheader">
+        <button class="modal-back-btn" id="backToNewTaskFromImportBtn">
+            <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+            导入文件
+        </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="upload-area">
+        <div class="upload-icon">
+            <svg class="icon-svg" style="width: 64px; height: 64px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-text">点击或拖拽文件到此处</div>
+        <div class="upload-sub">支持单次上传单个文件，最大 50MB</div>
+        <div class="file-types">
+            <span class="file-type-badge">PDF</span>
+            <span class="file-type-badge">Word</span>
+            <span class="file-type-badge">Excel</span>
+            <span class="file-type-badge">CSV</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content: center; border-top: none; padding-top: 0;">
+      <button class="btn-modal-primary" style="width: 100%; justify-content: center;">
+        <svg class="icon-svg" style="width: 16px; height: 16px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        开始导入
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+var tabs = document.getElementById("tabs");
+var taskList = document.getElementById("taskList");
+var emptyState = document.getElementById("emptyState");
+var sortSelect = document.getElementById("sortSelect");
+var viewToggle = document.getElementById("viewToggle");
+var createTaskBtn = document.getElementById("createTaskBtn"); // Keep variable but might be null if element removed
+var newTaskModal = document.getElementById("newTaskModal");
+var closeModalBtn = document.getElementById("closeModalBtn");
+var cancelModalBtn = document.getElementById("cancelModalBtn");
+var btnStartAnalysis = document.getElementById("btnStartAnalysis");
+var connectDbModal = document.getElementById("connectDbModal");
+var closeConnectDbModalBtn = document.getElementById("closeConnectDbModalBtn");
+var backToNewTaskBtn = document.getElementById("backToNewTaskBtn");
+var cardSourceDb = document.getElementById("cardSourceDb");
+var cardSourceFile = document.getElementById("cardSourceFile");
+var importFileModal = document.getElementById("importFileModal");
+var closeImportFileModalBtn = document.getElementById("closeImportFileModalBtn");
+var backToNewTaskFromImportBtn = document.getElementById("backToNewTaskFromImportBtn");
+
+// 绑定新建任务卡片点击事件
+// 由于 task-card-new 是动态生成的或者存在于列表中，使用事件委托或直接绑定
+// 这里假设 task-card-new 是静态存在的
+var newTaskCards = document.querySelectorAll(".task-card-new");
+newTaskCards.forEach(function(card) {
+  card.addEventListener("click", function() {
+    openModal();
+  });
+});
+
+function openModal() {
+  newTaskModal.classList.add("active");
+  document.body.style.overflow = "hidden"; // 防止背景滚动
+}
+
+function closeModal() {
+  newTaskModal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+function openConnectDbModal() {
+  newTaskModal.classList.remove("active");
+  connectDbModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeConnectDbModal() {
+  connectDbModal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+function backToNewTask() {
+  connectDbModal.classList.remove("active");
+  newTaskModal.classList.add("active");
+}
+
+function openImportFileModal() {
+  newTaskModal.classList.remove("active");
+  importFileModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeImportFileModal() {
+  importFileModal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+function backToNewTaskFromImport() {
+  importFileModal.classList.remove("active");
+  newTaskModal.classList.add("active");
+}
+
+if (closeModalBtn) {
+  closeModalBtn.addEventListener("click", closeModal);
+}
+if (cancelModalBtn) {
+  cancelModalBtn.addEventListener("click", closeModal);
+}
+if (closeConnectDbModalBtn) {
+  closeConnectDbModalBtn.addEventListener("click", closeConnectDbModal);
+}
+if (backToNewTaskBtn) {
+  backToNewTaskBtn.addEventListener("click", backToNewTask);
+}
+if (closeImportFileModalBtn) {
+  closeImportFileModalBtn.addEventListener("click", closeImportFileModal);
+}
+if (backToNewTaskFromImportBtn) {
+  backToNewTaskFromImportBtn.addEventListener("click", backToNewTaskFromImport);
+}
+
+newTaskModal.addEventListener("click", function(e) {
+  if (e.target === newTaskModal) {
+    closeModal();
+  }
+});
+connectDbModal.addEventListener("click", function(e) {
+  if (e.target === connectDbModal) {
+    closeConnectDbModal();
+  }
+});
+importFileModal.addEventListener("click", function(e) {
+  if (e.target === importFileModal) {
+    closeImportFileModal();
+  }
+});
+
+// 数据源卡片选择效果
+var sourceCards = document.querySelectorAll(".source-card");
+sourceCards.forEach(function(card) {
+  card.addEventListener("click", function() {
+    // 移除其他选中状态
+    sourceCards.forEach(function(c) {
+      c.classList.remove("selected");
+    });
+    // 选中当前
+    this.classList.add("selected");
+  });
+});
+
+if (btnStartAnalysis) {
+  btnStartAnalysis.addEventListener("click", function() {
+    // 检查是否选择了连接数据库卡片
+    if (cardSourceDb && cardSourceDb.classList.contains("selected")) {
+      openConnectDbModal();
+    } else if (cardSourceFile && cardSourceFile.classList.contains("selected")) {
+      openImportFileModal();
+    } else {
+      // 可以在这里处理其他选项，或者提示选择
+      // 暂时只处理数据库连接
+      var selected = document.querySelector(".source-card.selected");
+      if (!selected) {
+        alert("请先选择一个数据来源");
+      } else {
+        // 如果是其他卡片，提示暂未实现
+        alert("该功能正在开发中");
+      }
+    }
+  });
+}
+
+function updateEmptyState() {
+  var visibleRows = taskList.querySelectorAll(".task-row:not(.hidden)");
+  var isEmpty = visibleRows.length === 0;
+  emptyState.classList.toggle("hidden", !isEmpty);
+  taskList.classList.toggle("hidden", isEmpty);
+}
+function filterTasks(filter) {
+  var rows = taskList.querySelectorAll(".task-row");
+  rows.forEach(function (row) {
+    var domain = row.getAttribute("data-domain");
+    var status = row.getAttribute("data-status");
+    var match = false;
+    if (filter === "all") {
+      match = true;
+    } else if (filter === "revenue") {
+      match = domain === "revenue";
+    } else if (filter === "followup") {
+      match = domain === "followup";
+    } else if (filter === "management") {
+      match = domain === "management";
+    } else if (filter === "education") {
+      match = domain === "education";
+    } else if (filter === "abnormal") {
+      match = status === "warning" || status === "alert";
+    }
+    row.classList.toggle("hidden", !match);
+  });
+  updateEmptyState();
+}
+function sortTasks(key) {
+  var rows = Array.prototype.slice.call(taskList.querySelectorAll(".task-row"));
+  rows.sort(function (a, b) {
+    var av = a.getAttribute("data-" + key);
+    var bv = b.getAttribute("data-" + key);
+    var na = parseFloat(av);
+    var nb = parseFloat(bv);
+    if (!isNaN(na) && !isNaN(nb)) {
+      return nb - na;
+    }
+    if (av === bv) {
+      return 0;
+    }
+    return av > bv ? -1 : 1;
+  });
+  rows.forEach(function (row) {
+    taskList.appendChild(row);
+  });
+}
+tabs.addEventListener("click", function (e) {
+  if (!(e.target instanceof HTMLElement)) {
+    return;
+  }
+  var btn = e.target.closest(".tab");
+  if (!btn) {
+    return;
+  }
+  var filter = btn.getAttribute("data-filter");
+  if (!filter) {
+    return;
+  }
+  tabs.querySelectorAll(".tab").forEach(function (el) {
+    el.classList.remove("tab-active");
+  });
+  btn.classList.add("tab-active");
+  filterTasks(filter);
+});
+sortSelect.addEventListener("change", function () {
+  var value = sortSelect.value;
+  if (value === "updated") {
+    sortTasks("updated");
+  } else if (value === "coverage") {
+    sortTasks("coverage");
+  } else if (value === "revenue") {
+    sortTasks("revenue");
+  }
+});
+viewToggle.addEventListener("click", function (e) {
+  if (!(e.target instanceof HTMLElement)) {
+    return;
+  }
+  var btn = e.target.closest(".view-toggle-btn");
+  if (!btn) {
+    return;
+  }
+  var view = btn.getAttribute("data-view");
+  if (!view) {
+    return;
+  }
+  viewToggle.querySelectorAll(".view-toggle-btn").forEach(function (el) {
+    el.classList.remove("view-toggle-btn-active");
+  });
+  btn.classList.add("view-toggle-btn-active");
+  if (view === "card") {
+    taskList.classList.remove("view-list");
+    taskList.classList.add("view-card");
+  } else {
+    taskList.classList.remove("view-card");
+    taskList.classList.add("view-list");
+  }
+});
+createTaskBtn.addEventListener("click", function () {
+  alert("这里可以跳转到“新建任务”流程示意。");
+});
+filterTasks("all");
+sortTasks("updated");
+</script>
+</body>
+</html>

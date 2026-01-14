@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>患者详情 - AI主动健康管理</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* --- 基础样式 (复用自 index.html) --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  color: #1f2933;
+  background: url('背景.png') no-repeat center center fixed;
+  background-size: cover;
+  letter-spacing: 0.015em; /* Global letter spacing */
+}
+body {
+  display: block;
+  padding: 88px 24px 24px;
+  overflow-y: auto;
+  font-size: 14px; /* Base font size */
+}
+
+/* 通用图标 */
+.icon-svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+/* Heading Hierarchy Utility Classes */
+.text-h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 28px;
+}
+.text-h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+}
+.text-h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 20px;
+}
+.text-h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  line-height: 20px;
+}
+
+/* --- 布局容器 --- */
+.layout-container {
+  display: flex;
+  gap: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+  height: calc(100vh - 112px); /* 视口高度减去上下padding (88+24) */
+}
+
+/* --- 左侧边栏 --- */
+.sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Adjusted gap to 16px */
+}
+
+/* 导航返回卡片 */
+.nav-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+.nav-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s;
+}
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  color: #1e293b;
+}
+
+/* 侧边栏整体容器 */
+.sidebar-container {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 侧边栏分块通用样式 */
+.sidebar-section {
+  padding: 24px;
+  border-bottom: 1px solid #f8fafc;
+}
+.sidebar-section:last-child {
+  border-bottom: none;
+}
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+.sidebar-section-header .icon-svg {
+  color: #64748b;
+  width: 16px;
+  height: 16px;
+}
+
+/* 基本信息块 */
+.info-block {
+  padding: 24px;
+  border-bottom: 1px solid #f8fafc;
+  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+}
+/* Reusing profile-header from previous CSS but ensuring it fits nicely */
+
+/* 标签容器 */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag-pill {
+  font-size: 12px;
+  padding: 4px 10px;
+  background: #f1f5f9;
+  color: #4f46e5; /* Indigo text */
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* 评估卡片列表 */
+.assessment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.assessment-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.assessment-card:hover {
+  background: #fff;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.assessment-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px; /* Normalized from 13px */
+  color: #334155;
+  font-weight: 500;
+}
+.assessment-status {
+  font-size: 12px;
+  color: #64748b;
+}
+.assessment-status.highlight {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.info-header {
+  background: transparent;
+  padding: 24px 24px 16px 24px; /* Adjusted padding */
+  color: #1e293b;
+  /* border-bottom: 1px solid #f8fafc; Removed to merge visually with info body if needed, but keeping separate blocks now */
+}
+/* Replaced title/avatar layout with denser profile header */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #e0e7ff;
+  background-image: url('组合 666.png');
+  background-size: cover;
+  flex-shrink: 0;
+}
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.profile-name {
+  font-size: 20px; /* Increased from 18px */
+  font-weight: 700;
+  color: #1e293b;
+}
+.profile-tags {
+  display: flex;
+  gap: 6px;
+}
+.profile-tag {
+  font-size: 12px; /* Normalized from 11px */
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #94a3b8; /* Lower contrast */
+  font-weight: 500;
+}
+
+.info-body {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  border-bottom: 1px solid #f8fafc;
+}
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.info-label {
+  font-size: 12px; /* Normalized from 11px */
+  color: #94a3b8;
+}
+.info-value {
+  font-size: 14px; /* Normalized from 13px */
+  color: #64748b; /* Lower contrast from #334155 */
+  font-weight: 500;
+  word-break: break-all;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 侧边栏菜单项 */
+.sidebar-menu-item {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #1e293b;
+  font-weight: 500;
+  font-size: 14px;
+  border-bottom: 1px solid #f8fafc;
+  position: relative;
+}
+.sidebar-menu-item:last-child {
+  border-bottom: none;
+}
+.sidebar-menu-item:hover {
+  background: #f8fafc;
+}
+.sidebar-menu-item.highlight {
+  /* background: #f8fafc; Removed permanent background for uniformity */
+}
+.indicator {
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: #e2e8f0;
+  margin-right: 12px;
+  transition: all 0.2s;
+}
+/* Removed green indicator rule */
+.sidebar-menu-item:hover .indicator {
+  background: #cbd5e1; /* Subtle gray on hover */
+}
+.menu-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.menu-status {
+  font-size: 12px;
+  color: #94a3b8; /* Lower contrast */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* --- 右侧内容区 --- */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* Increased gap */
+  overflow-y: auto; /* 内容过长时滚动 */
+  padding-right: 4px; /* 滚动条留白 */
+}
+
+/* 顶部Tabs */
+.content-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 4px;
+  border-radius: 12px;
+  width: fit-content;
+  backdrop-filter: blur(10px);
+  margin-bottom: 0; /* Ensure no bottom margin pushes content down */
+}
+.content-tab {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.content-tab.active {
+  background: #fff;
+  color: #4f46e5;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  font-weight: 600;
+}
+
+/* 主要内容卡片 */
+.content-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px; /* Reduced from 32px */
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  height: fit-content;
+}
+
+/* 方案头部 */
+.plan-header {
+  margin-bottom: 24px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.plan-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.plan-title-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-marker {
+  width: 4px;
+  height: 24px;
+  background: #4f46e5;
+  border-radius: 2px;
+  display: none;
+}
+.plan-title {
+  font-size: 20px; /* H1 Size: 20px */
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 28px;
+}
+.btn-adjust {
+  background: transparent;
+  color: #4f46e5;
+  border: 1px solid #4f46e5;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 14px; /* Normalized from 13px */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-adjust:hover {
+  background: #eef2ff;
+  border-color: #4338ca;
+  color: #4338ca;
+}
+
+.plan-metrics-grid {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  border: none;
+}
+.metric-item {
+  display: flex;
+  align-items: center; /* Horizontal layout */
+  gap: 8px;
+}
+.metric-divider {
+  display: none; /* Remove dividers */
+}
+.metric-label {
+  font-size: 14px; /* Normalized from 13px */
+  color: #64748b;
+  font-weight: 400;
+}
+.metric-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 600;
+}
+.metric-date {
+  font-weight: 400;
+  color: #94a3b8;
+  font-size: 12px;
+}
+.metric-sub {
+  color: #94a3b8;
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.status-badge {
+  background: transparent;
+  color: #10b981; /* Green text only */
+  padding: 0;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.status-badge::before {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.cost-highlight {
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 14px;
+}
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 240px;
+}
+.progress-bar-bg {
+  flex: 1;
+  height: 8px; /* Thicker */
+  background: #f1f5f9; /* Lighter bg */
+  border-radius: 4px;
+}
+.progress-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: #4f46e5;
+  border-radius: 4px;
+}
+
+/* 风险标签 */
+.risk-section {
+  margin-bottom: 32px;
+  display: flex; /* Horizontal layout */
+  gap: 24px;
+  align-items: flex-start;
+}
+.section-subtitle {
+  font-size: 16px; /* Normalized from 15px */
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0;
+  display: block;
+  width: 100px; /* Fixed width for left title */
+  flex-shrink: 0;
+  padding-top: 8px; /* Align with tags */
+}
+.section-subtitle span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 400;
+  margin-left: 0;
+}
+.risk-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex: 1;
+}
+.risk-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px; /* Capsule shape */
+  font-size: 14px; /* Normalized from 13px */
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+.risk-high {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+.risk-tag-badge {
+  display: none; /* Remove badge text inside tag, color is enough */
+}
+
+.risk-medium {
+  background: #ffedd5;
+  color: #c2410c;
+  border-color: #fed7aa;
+}
+
+.risk-low {
+  background: #fef9c3;
+  color: #a16207;
+  border-color: #fde047;
+}
+
+.link-more {
+  display: none; /* Hide for now or move */
+}
+
+/* 诊疗安排 */
+.treatment-section {
+  margin-bottom: 24px;
+}
+.section-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.section-header-title {
+  font-size: 18px; /* Normalized from 17px */
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+}
+.section-header-meta {
+  font-size: 14px; /* Normalized from 13px */
+  color: #64748b;
+  margin-left: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.info-block-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.info-block-card:hover {
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 24px;
+}
+.status-wait {
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.card-row {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.card-label {
+  color: #64748b;
+  width: 42px; /* Fixed width for alignment */
+  flex-shrink: 0;
+}
+.card-value {
+  color: #334155;
+  flex: 1;
+}
+
+.manage-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.mini-tag {
+  font-size: 12px;
+  padding: 4px 10px;
+  background: #fff;
+  border: 1px solid #e2e8f0; /* Ghost button style */
+  color: #64748b;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.mini-tag:hover {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+/* Execution Plan Refactor */
+.execution-list {
+  display: flex;
+  flex-direction: column;
+  padding-left: 8px;
+}
+.execution-item {
+  display: flex;
+  gap: 20px;
+  position: relative;
+  padding-bottom: 32px;
+}
+.execution-item:last-child {
+  padding-bottom: 0;
+}
+.timeline-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 24px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+.step-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 1;
+  box-shadow: 0 0 0 4px #fff;
+}
+.step-circle.future {
+  background: #f1f5f9;
+  color: #94a3b8;
+  box-shadow: none;
+}
+.step-line {
+  flex: 1;
+  width: 2px;
+  background: #e2e8f0;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  min-height: 20px;
+}
+.execution-item:last-child .step-line {
+  display: none;
+}
+.execution-card-expanded {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.exec-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.exec-title {
+  font-weight: 600;
+  font-size: 16px; /* Normalized from 15px */
+  color: #1e293b;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.exec-tag {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #eff6ff;
+    color: #4f46e5;
+    font-weight: 500;
+}
+.exec-status-badge {
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.exec-status-badge.active {
+    background: #eff6ff;
+    color: #4f46e5;
+}
+.exec-detail-row {
+  padding: 20px 16px;
+  font-size: 14px; /* Normalized from 13px */
+  color: #475569;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.detail-label {
+    color: #94a3b8;
+    font-size: 12px;
+}
+.detail-value {
+    color: #1e293b;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.strategy-box {
+  margin: 0 16px 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px; /* Normalized from 13px */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.strategy-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #334155;
+}
+.strategy-label {
+    font-weight: 600;
+    color: #1e293b;
+}
+.exec-footer {
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.created-time {
+    font-size: 12px;
+    color: #94a3b8;
+}
+.btn-call-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px; /* Normalized from 13px */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
+}
+.btn-call-action:hover {
+    background: #4338ca;
+}
+.execution-card-simple {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+.execution-card-simple:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.simple-title {
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 14px;
+}
+.simple-date {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+/* --- Management Scheme Refactor (New) --- */
+/* Status Bar */
+.plan-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.status-label {
+  font-size: 14px; /* Normalized from 13px */
+  color: #64748b;
+  font-weight: 500;
+}
+.status-badge-new {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #10b981;
+  color: #fff;
+  font-weight: 600;
+}
+.status-date {
+  font-size: 14px; /* Normalized from 13px */
+  color: #94a3b8;
+}
+.cost-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px; /* Normalized from 13px */
+}
+.cost-val-main {
+  color: #4f46e5;
+  font-weight: 600;
+  font-size: 14px;
+}
+.cost-val-sub {
+  color: #94a3b8;
+}
+.progress-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px; /* Normalized from 13px */
+  color: #64748b;
+}
+.progress-counts {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.count-paid { color: #10b981; }
+.count-wait { color: #f59e0b; }
+.progress-bar-mini {
+  width: 100px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill-mini {
+  height: 100%;
+  background: #4f46e5;
+  width: 17%;
+}
+
+/* Risk Section Refactor */
+.risk-section-new {
+  margin-bottom: 24px;
+}
+.risk-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.risk-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.risk-count-badge {
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 12px; /* Normalized from 11px */
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+.risk-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.risk-card-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px; /* Normalized from 13px */
+  color: #334155;
+  font-weight: 500;
+}
+.risk-card-item.risk-high {
+  border-color: #fee2e2;
+  color: #1e293b;
+}
+.risk-card-item.risk-medium {
+  border-color: #fef3c7;
+  color: #1e293b;
+}
+.risk-level-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px; /* Normalized from 11px */
+  font-weight: 700;
+}
+.risk-high .risk-level-badge {
+  background: #fee2e2;
+  color: #ef4444;
+}
+.risk-medium .risk-level-badge {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+/* New Heading Hierarchy Styles - Refined V2 */
+.section-h2-container {
+  /* Deprecated: Divider moved to H1 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+.section-h2-title {
+  font-size: 16px; /* H2 Size: 16px */
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.01em;
+  line-height: 24px;
+}
+.module-block-container {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.module-block-container:last-child {
+  margin-bottom: 0;
+}
+.subsection-block {
+  /* H3 Container: Transparent now, nested in H2 block */
+  background: transparent;
+  padding: 0;
+  margin-bottom: 20px;
+}
+.subsection-title {
+  font-size: 14px; /* H3 Size: 14px */
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 20px;
+}
+
+/* Updated H4 Card Styles */
+.card-dept-name {
+  font-size: 14px; /* Per rule: same as body but bold */
+  font-weight: 700;
+  color: #0f172a; /* Pure Black */
+  line-height: 20px;
+}
+.card-doc-name {
+  font-size: 14px;
+  color: #64748b; /* Slate 500 */
+  font-weight: 400;
+}
+
+/* Reset .medical-schedule to be a clean wrapper */
+.medical-schedule {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+.schedule-section-title {
+  /* Deprecated in favor of .subsection-title, keeping for fallback */
+  font-size: 18px; 
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.schedule-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.schedule-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+.card-status-badge {
+  font-size: 12px; /* Normalized from 11px */
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.card-status-badge.paid {
+  color: #10b981;
+  background: #ecfdf5;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.card-status-badge.pending {
+  color: #f59e0b;
+  background: #fffbeb;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.card-footer-container {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.footer-label {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-top: 3px; /* Visual alignment with tags */
+}
+.footer-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.footer-tag-outline {
+  font-size: 12px; /* Normalized from 11px */
+  color: #64748b;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  padding: 1px 8px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+/* 顶部导航栏样式 */
+.app-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 20px rgba(30, 41, 59, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 1000;
+}
+.app-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app-logo {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 10px rgba(67, 56, 202, 0.2);
+}
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e1b4b;
+  letter-spacing: -0.01em;
+}
+.app-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+.user-profile:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e0e7ff;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4338ca;
+  font-weight: 600;
+  font-size: 14px;
+}
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+}
+</style>
+</head>
+<body>
+<nav class="app-navbar">
+  <div class="app-navbar-left">
+    <div class="app-logo">
+      <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+    </div>
+    <div class="app-title">主动健康管理平台</div>
+  </div>
+  <div class="app-navbar-right">
+    <div class="user-profile">
+      <div class="user-avatar">DR</div>
+      <span class="user-name">Dr. Wang</span>
+    </div>
+  </div>
+</nav>
+
+<div class="layout-container">
+  <!-- 左侧边栏 -->
+    <aside class="sidebar">
+      <!-- 统一容器：基本信息 + 分块内容 -->
+      <div class="sidebar-container">
+        <!-- 1. 基本信息区块 -->
+        <div class="info-block">
+            <div class="sidebar-section-header">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                基本信息
+            </div>
+            <!-- 头部信息 -->
+            <div class="profile-header" style="margin-bottom: 16px;">
+                <div class="avatar"></div>
+                <div class="profile-info">
+                <div class="profile-name-row">
+                    <span class="profile-name">李岩</span>
+                    <!-- 清晰的性别图标 (Venus Symbol) -->
+                    <svg class="icon-svg" style="width: 16px; height: 16px; color: #ec4899;" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/>
+                        <path d="M12 15v7"/>
+                        <path d="M9 19h6"/>
+                    </svg>
+                </div>
+                <div class="profile-tags">
+                    <span class="profile-tag">34岁</span>
+                    <span class="profile-tag">MR1768...947</span>
+                </div>
+                </div>
+            </div>
+            
+            <!-- 详细信息 -->
+            <div class="info-body" style="padding: 0; border: none;">
+                <div class="info-item">
+                    <span class="info-label">联系电话</span>
+                    <span class="info-value">13812345678</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">身份证号</span>
+                    <span class="info-value">--</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">责任医生</span>
+                    <span class="info-value">张鹏华</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 患者标签区块 -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-header">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                患者标签
+            </div>
+            <div class="tags-container">
+                <span class="tag-pill">高血压</span>
+                <span class="tag-pill">高血脂</span>
+                <span class="tag-pill">慢病管理</span>
+            </div>
+        </div>
+
+        <!-- 3. 患者评估区块 -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-header">
+                <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                患者评估
+            </div>
+            <div class="assessment-list">
+                <!-- 评估卡片 1 -->
+                <div class="assessment-card">
+                    <div class="assessment-info">
+                        <svg class="icon-svg" style="color: #64748b;" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 9.5h20"/></svg>
+                        消费能力评估
+                    </div>
+                    <span class="assessment-status">待评估</span>
+                </div>
+                <!-- 评估卡片 2 -->
+                <div class="assessment-card">
+                    <div class="assessment-info">
+                        <svg class="icon-svg" style="color: #64748b;" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        就医意向评估
+                    </div>
+                    <span class="assessment-status highlight">高</span>
+                </div>
+            </div>
+        </div>
+      </div>
+    </aside>
+
+  <!-- 右侧主内容 -->
+  <main class="main-content">
+    <div class="content-tabs">
+      <div class="content-tab active">患者管理方案</div>
+      <div class="content-tab">AI主动健康管理</div>
+    </div>
+
+    <div class="content-card">
+      <!-- 方案标题 -->
+      <div class="plan-header" style="margin-bottom: 16px;">
+        <div class="plan-top-row">
+          <div class="plan-title-area">
+            <div class="section-marker"></div>
+            <div class="plan-title">管理方案</div>
+          </div>
+          <button class="btn-adjust">调整方案</button>
+        </div>
+      </div>
+
+      <!-- 1. 状态栏 (Status Bar) -->
+      <div class="plan-status-bar">
+        <div class="status-group">
+            <span class="status-label">方案状态</span>
+            <span class="status-badge-new">执行中</span>
+            <span class="status-date">2026-01-05 — 2026-03-05</span>
+        </div>
+        <div class="cost-group">
+            <svg class="icon-svg" style="color:#64748b;" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6v12"/><path d="M16 10h-6.5a1.5 1.5 0 0 0 0 3h3a1.5 1.5 0 0 1 0 3H9"/></svg>
+            <span class="status-label">已产生费用</span>
+            <span class="cost-val-main">¥0</span>
+            <span class="cost-val-sub">/ ¥2,340 (预估)</span>
+        </div>
+        <div class="progress-group">
+            <span>就诊安排共10项</span>
+            <span style="color:#e2e8f0;">/</span>
+            <div class="progress-counts">
+                <span class="count-paid">已缴费 (2)</span>
+                <span class="count-wait">待缴费 (8)</span>
+            </div>
+            <div class="progress-bar-mini">
+                <div class="progress-fill-mini"></div>
+            </div>
+            <span style="color:#4f46e5; font-weight:600;">17%</span>
+            <svg class="icon-svg" style="width:14px; height:14px; color:#94a3b8; cursor:pointer;" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- 2. 管理风险 (Risk Section) -->
+      <div class="module-block-container">
+        <div class="section-h2-container">
+                    <div class="section-h2-title">
+                        管理风险
+                        <span class="risk-count-badge">5项</span>
+                    </div>
+            <div style="font-size:12px;">
+                <span style="color:#64748b;">未列出的风险持续监测中，</span>
+                <span style="color:#4f46e5; cursor:pointer; margin-left:4px;">查看全部 →</span>
+            </div>
+        </div>
+        <div class="risk-tags-row">
+            <div class="risk-card-item risk-high">
+                <span class="risk-level-badge">高</span>
+                2型糖尿病血糖控制不佳
+            </div>
+            <div class="risk-card-item risk-high">
+                <span class="risk-level-badge">高</span>
+                重度高甘油三酯血症
+            </div>
+            <div class="risk-card-item risk-medium">
+                <span class="risk-level-badge">中</span>
+                高尿酸血症伴痛风风险
+            </div>
+            <div class="risk-card-item risk-medium">
+                <span class="risk-level-badge">中</span>
+                非酒精性脂肪性肝病
+            </div>
+            <div class="risk-card-item risk-medium">
+                <span class="risk-level-badge">中</span>
+                原发性高血压
+            </div>
+        </div>
+      </div>
+
+      <!-- 3. 诊疗安排 (Diagnosis & Treatment) -->
+      <div class="module-block-container">
+        <div class="section-h2-container">
+                    <div class="section-h2-title">
+                        诊疗安排
+                        <span class="risk-count-badge">10项</span>
+                    </div>
+        </div>
+        <div class="medical-schedule">
+          <!-- 子模块1: 推荐就诊科室 -->
+          <div class="subsection-block">
+            <div class="subsection-title">
+                <span style="display:inline-block; width:4px; height:14px; background:#10b981; border-radius:2px; margin-right:6px;"></span>
+                推荐就诊科室 <span class="risk-count-badge" style="background:#ecfdf5; color:#10b981;">5项</span>
+                <span style="margin-left:auto; font-size:12px; color:#64748b; cursor:pointer; font-weight:400;">展开全部 ∨</span>
+            </div>
+            <div class="schedule-cards-grid">
+                <!-- Card 1 -->
+                <div class="schedule-card">
+                    <div class="card-header-flex">
+                        <span class="card-dept-name">内分泌科</span>
+                        <span class="card-status-badge paid">
+                            <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg> 已缴费
+                        </span>
+                    </div>
+                    <div class="card-doc-name">主治: 张丽华 主任医师</div>
+                    <div class="card-reason">原因: 作为糖尿病及其并发症的核心管理科室，全面评估血糖控制...</div>
+                    <div class="card-footer-container">
+                        <div class="footer-label">管理</div>
+                        <div class="footer-tags-row">
+                            <span class="footer-tag-outline">2型糖尿病血糖控制不佳</span>
+                            <span class="footer-tag-outline">严重高甘油三酯血症</span>
+                            <span class="footer-tag-outline">甲状腺结节</span>
+                            <span class="footer-tag-outline">脂肪肝</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="schedule-card">
+                    <div class="card-header-flex">
+                        <span class="card-dept-name">心血管内科</span>
+                        <span class="card-status-badge pending">
+                            <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> 待缴费
+                        </span>
+                    </div>
+                    <div class="card-doc-name">主治: 张医生 副主任医师</div>
+                    <div class="card-reason">原因: 针对高血压2级和严重高甘油三酯血症进行专业评估，制定降...</div>
+                    <div class="card-footer-container">
+                        <div class="footer-label">管理</div>
+                        <div class="footer-tags-row">
+                            <span class="footer-tag-outline">严重高甘油三酯血症</span>
+                            <span class="footer-tag-outline">高血压2级</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="schedule-card">
+                    <div class="card-header-flex">
+                        <span class="card-dept-name">甲乳外科</span>
+                        <span class="card-status-badge pending">
+                            <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> 待缴费
+                        </span>
+                    </div>
+                    <div class="card-doc-name">主治: 主治医师及以上</div>
+                    <div class="card-reason">原因: 对甲状腺结节进行专科评估，判断是否需要进一步穿刺或干...</div>
+                    <div class="card-footer-container">
+                        <div class="footer-label">管理</div>
+                        <div class="footer-tags-row">
+                            <span class="footer-tag-outline">甲状腺结节</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 子模块2: 推荐检查项目 -->
+        <div class="subsection-block">
+            <div class="subsection-title">
+                <span style="display:inline-block; width:4px; height:14px; background:#4f46e5; border-radius:2px; margin-right:6px;"></span>
+                推荐检查项目 <span class="risk-count-badge" style="background:#eef2ff; color:#4f46e5;">10项</span>
+                <span style="margin-left:auto; font-size:12px; color:#64748b; cursor:pointer; font-weight:400;">展开全部 ∨</span>
+            </div>
+            <div class="schedule-cards-grid">
+                <!-- Card 1 -->
+                <div class="schedule-card">
+                    <div class="card-header-flex">
+                        <span class="card-dept-name">口服葡萄糖耐量试验 (OGTT)</span>
+                        <span class="card-status-badge pending">
+                            <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> 待缴费
+                        </span>
+                    </div>
+                    <div class="card-reason">目的: 评估胰岛β细胞功能及血糖调节能力，明确糖尿病分型</div>
+                    <div class="card-footer-container">
+                        <div class="footer-label">管理</div>
+                        <div class="footer-tags-row">
+                            <span class="footer-tag-outline">2型糖尿病血糖控制不佳</span>
+                            <span class="footer-tag-outline">严重高甘油三酯血症</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="schedule-card">
+                    <div class="card-header-flex">
+                        <span class="card-dept-name">尿微量白蛋白/肌酐比值 (ACR)</span>
+                        <span class="card-status-badge pending">
+                            <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> 待缴费
+                        </span>
+                    </div>
+                    <div class="card-reason">目的: 早期筛查糖尿病肾病</div>
+                    <div class="card-footer-container">
+                        <div class="footer-label">管理</div>
+                        <div class="footer-tags-row">
+                            <span class="footer-tag-outline">2型糖尿病血糖控制不佳</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                  <div class="schedule-card">
+                      <div class="card-header-flex">
+                          <span class="card-dept-name">眼底照相检查</span>
+                          <span class="card-status-badge pending">
+                              <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> 待缴费
+                          </span>
+                      </div>
+                      <div class="card-reason">目的: 评估是否存在糖尿病视网膜病变</div>
+                      <div class="card-footer-container">
+                          <div class="footer-label">管理</div>
+                          <div class="footer-tags-row">
+                              <span class="footer-tag-outline">2型糖尿病血糖控制不佳</span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- End of Management Scheme Card -->
+
+    <!-- 执行计划 Card -->
+    <div class="content-card">
+        <div class="plan-header" style="margin-bottom: 24px; border-bottom: none;">
+            <div class="plan-top-row" style="margin-bottom: 16px;">
+                <div class="plan-title-area">
+                    <span style="display:inline-block; width:4px; height:20px; background:#3b82f6; border-radius:2px; margin-right:8px;"></span>
+                    <div class="plan-title">执行计划</div>
+                    <span style="background:#dbeafe; color:#2563eb; padding:2px 8px; border-radius:12px; font-size:12px; font-weight:500;">拉回流程</span>
+                </div>
+            </div>
+
+            <!-- Status Info Bar -->
+            <div style="background:#f8fafc; border-radius:8px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; font-size:14px; margin-bottom:20px;">
+              <div style="display:flex; align-items:center; gap:20px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="color:#64748b;">方案状态</span>
+                  <span style="background:#10b981; color:#fff; padding:2px 8px; border-radius:4px; font-weight:500;">执行中</span>
+                </div>
+                <div style="color:#64748b;">2026-01-05 —— 2026-03-05</div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:24px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                   <svg class="icon-svg" style="width:14px; height:14px; color:#64748b; stroke:#64748b;" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                   <span style="color:#64748b;">已产生费用</span>
+                   <span style="font-weight:600; color:#3b82f6;">¥0</span>
+                   <span style="color:#94a3b8;">/ ¥2,340 (预估)</span>
+                </div>
+                <div style="width:1px; height:14px; background:#cbd5e1;"></div>
+                <div class="progress-group">
+                    <span>就诊安排共10项</span>
+                    <div class="progress-counts">
+                        <span class="count-paid">/ 已缴费 (2)</span>
+                        <span class="count-wait">待缴费 (8)</span>
+                    </div>
+                    <div class="progress-bar-mini" style="width:80px;">
+                        <div class="progress-fill-mini" style="width:20%; background:#10b981;"></div>
+                    </div>
+                    <span style="font-weight:600; color:#10b981;">20%</span>
+                </div>
+                <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer; color: #64748b;">
+                  <svg class="icon-svg" style="width: 14px; height: 14px;" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Process Stepper Tabs -->
+            <div style="display:flex; gap:12px; margin-bottom:24px;">
+              <!-- Step 1: Active -->
+              <div id="tab-step-1" onclick="switchStep(1)" style="flex:1; background:#eef2ff; border:1px solid #c7d2fe; border-radius:8px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; color:#1e293b; cursor:pointer; transition:all 0.2s;">
+                <div style="display:flex; align-items:center; gap:8px; font-weight:600;">
+                  <div id="icon-bg-1" style="width:20px; height:20px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff;">
+                    <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  </div>
+                  建立联系
+                  <span id="dot-1" style="width:6px; height:6px; background:#3b82f6; border-radius:50%;"></span>
+                </div>
+                <span style="font-size:12px; opacity:0.8;">0/2次</span>
+              </div>
+              
+              <!-- Step 2 -->
+              <div id="tab-step-2" onclick="switchStep(2)" style="flex:1; background:#fff; border:1px solid #f1f5f9; border-radius:8px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; color:#94a3b8; cursor:pointer; transition:all 0.2s;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div id="icon-bg-2" style="width:20px; height:20px; background:#e2e8f0; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff;">
+                    <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                  </div>
+                  就诊提醒
+                  <span id="dot-2" style="width:6px; height:6px; background:#475569; border-radius:50%; display:none;"></span>
+                </div>
+                <span style="font-size:12px; opacity:0.6;">0/1次</span>
+              </div>
+
+              <!-- Step 3 -->
+              <div id="tab-step-3" onclick="switchStep(3)" style="flex:1; background:#fff; border:1px solid #f1f5f9; border-radius:8px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; color:#94a3b8; cursor:pointer; transition:all 0.2s;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                   <div id="icon-bg-3" style="width:20px; height:20px; background:#e2e8f0; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff;">
+                    <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  </div>
+                  完成就医
+                  <span id="dot-3" style="width:6px; height:6px; background:#475569; border-radius:50%; display:none;"></span>
+                </div>
+                <span style="font-size:12px; opacity:0.6;">0/0次</span>
+              </div>
+            </div>
+        </div>
+
+        <!-- Execution Cards Grid Container -->
+        
+        <!-- Step 1 Content: 建立联系 -->
+        <div id="content-step-1" class="step-content" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+            <!-- Card 1: 沟通失败 -->
+            <div style="border:1px solid #e2e8f0; border-radius:12px; background:#fff; overflow:hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                <div style="padding:16px 20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:28px; height:28px; background:#3b82f6; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">1</div>
+                        <span style="font-weight:600; font-size:16px; color:#1e293b;">第1次沟通</span>
+                        <span style="background:linear-gradient(135deg, #8b5cf6, #06b6d4); color:#fff; font-size:12px; padding:2px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
+                             <svg class="icon-svg" style="width:10px; height:10px; stroke:white;" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7H11V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"></path></svg>
+                             AI
+                        </span>
+                    </div>
+                    <span style="color:#ef4444; font-size:14px; font-weight:600; display:flex; align-items:center; gap:4px; background:#fef2f2; padding:4px 10px; border-radius:12px;">
+                        <svg class="icon-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        沟通失败
+                    </span>
+                </div>
+
+                <div style="padding:20px;">
+                    <div style="display:grid; grid-template-columns: 1.5fr 1fr 1fr; gap:12px; margin-bottom:20px; font-size:14px; color:#64748b;">
+                        <div>
+                            <div style="margin-bottom:6px; display:flex; align-items:center; gap:4px; color:#94a3b8; font-size:12px;">
+                                 <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                 时间
+                            </div>
+                            <div style="color:#334155; font-weight:500;">2026-01-08 18:26:03</div>
+                            <div style="color:#94a3b8; font-size:12px;">(1分08秒)</div>
+                        </div>
+                        <div>
+                            <div style="margin-bottom:6px; display:flex; align-items:center; gap:4px; color:#94a3b8; font-size:12px;">
+                                 <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                 方式
+                            </div>
+                            <div style="color:#334155; font-weight:500;">AI电话</div>
+                        </div>
+                         <div>
+                             <div style="margin-bottom:6px; display:flex; align-items:center; gap:4px; color:#94a3b8; font-size:12px;">
+                                 <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                 状态
+                            </div>
+                            <div style="color:#ef4444; font-weight:500;">沟通失败</div>
+                        </div>
+                    </div>
+
+                    <div style="background:#f8fafc; border-radius:8px; padding:16px; margin-bottom:12px; border:1px solid #f1f5f9; border-left:3px solid #3b82f6;">
+                        <div style="color:#475569; font-size:14px; font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                             <svg class="icon-svg" style="width:14px; height:14px; color:#3b82f6;" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                             沟通策略
+                        </div>
+                        <div style="font-size:14px; color:#475569; display:flex; justify-content:space-between; line-height:1.5;">
+                            <span>引导患者了解高血脂风险，推荐内分泌科就诊，进行血脂全套检查</span>
+                            <span style="color:#3b82f6; cursor:pointer;">详情 ></span>
+                        </div>
+                    </div>
+
+                    <div style="background:#f8fafc; border-radius:8px; padding:16px; border:1px solid #f1f5f9; border-left:3px solid #ef4444;">
+                        <div style="color:#475569; font-size:14px; font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                             <svg class="icon-svg" style="width:14px; height:14px; color:#ef4444;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                             沟通结果
+                        </div>
+                        <div style="font-size:14px; color:#475569; display:flex; justify-content:space-between; align-items:center; line-height:1.5;">
+                            <span>患者表示最近太忙，拒绝就诊安排</span>
+                            <a href="#" style="color:#3b82f6; text-decoration:none; font-size:14px; display:flex; align-items:center; gap:4px; font-weight:500;">
+                                 <svg class="icon-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                查看通话记录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: 待执行 -->
+            <div style="border:1px solid #e2e8f0; border-radius:12px; background:#fff; overflow:hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                <div style="padding:16px 20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:28px; height:28px; background:#3b82f6; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">2</div>
+                        <span style="font-weight:600; font-size:16px; color:#1e293b;">第2次沟通</span>
+                        <span style="background:linear-gradient(135deg, #8b5cf6, #06b6d4); color:#fff; font-size:12px; padding:2px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
+                             <svg class="icon-svg" style="width:10px; height:10px; stroke:white;" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7H11V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"></path></svg>
+                             AI
+                        </span>
+                    </div>
+                    <button class="btn-call-action" style="padding:6px 14px; font-size:14px; background:#3b82f6; border-radius:6px;">
+                        <svg class="icon-svg" style="width:14px; height:14px; stroke:white;" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        立即执行
+                    </button>
+                </div>
+
+                <div style="padding:20px;">
+                     <div style="display:grid; grid-template-columns: 1.5fr 1fr 1fr; gap:12px; margin-bottom:20px; font-size:14px; color:#64748b;">
+                        <div>
+                            <div style="margin-bottom:6px; display:flex; align-items:center; gap:4px; color:#94a3b8; font-size:12px;">
+                                 <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                 时间
+                            </div>
+                            <div style="color:#334155; font-weight:500;">2026-01-15 14:00</div>
+                        </div>
+                        <div>
+                             <div style="margin-bottom:6px; display:flex; align-items:center; gap:4px; color:#94a3b8; font-size:12px;">
+                                 <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                 方式
+                            </div>
+                            <div style="color:#334155; font-weight:500;">AI电话</div>
+                        </div>
+                         <div>
+                             <div style="margin-bottom:6px; display:flex; align-items:center; gap:4px; color:#94a3b8; font-size:12px;">
+                                 <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                 状态
+                            </div>
+                            <div style="color:#3b82f6; font-weight:500;">待执行</div>
+                        </div>
+                    </div>
+
+                    <div style="background:#f8fafc; border-radius:8px; padding:16px; margin-bottom:12px; border:1px solid #f1f5f9; border-left:3px solid #3b82f6;">
+                        <div style="color:#475569; font-size:14px; font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                             <svg class="icon-svg" style="width:14px; height:14px; color:#3b82f6;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                             沟通目的
+                        </div>
+                        <div style="font-size:14px; color:#475569; line-height:1.5;">
+                            确认患者就诊情况，了解检查结果
+                        </div>
+                    </div>
+
+                    <div style="background:#f8fafc; border-radius:8px; padding:16px; border:1px solid #f1f5f9; border-left:3px solid #3b82f6;">
+                        <div style="color:#475569; font-size:14px; font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                             <svg class="icon-svg" style="width:14px; height:14px; color:#3b82f6;" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                             沟通策略
+                        </div>
+                        <div style="font-size:14px; color:#475569; display:flex; justify-content:space-between; line-height:1.5;">
+                            <span style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">复诊提醒：确认患者是否已完成预约就诊，了解就诊后情况，询问检查结果及医生建议</span>
+                            <span style="color:#3b82f6; cursor:pointer; white-space:nowrap; margin-left:8px;">详情 ></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2 Content: 就诊提醒 -->
+        <div id="content-step-2" class="step-content" style="display:none; grid-template-columns: 1fr 1fr; gap:20px;">
+            <!-- Card 1: 预约确认 -->
+            <div style="border:1px solid #f1f5f9; border-radius:12px; background:#fff; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                <div style="padding:16px 20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                         <div style="width:28px; height:28px; background:#3b82f6; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">1</div>
+                         <span style="font-weight:600; font-size:16px; color:#1e293b;">就诊前提醒</span>
+                         <span style="background:#eff6ff; color:#3b82f6; font-size:11px; padding:2px 8px; border-radius:4px; display:flex; align-items:center; gap:4px; font-weight:500;">
+                              短信
+                         </span>
+                    </div>
+                    <button class="btn-call-action" style="padding:6px 12px; font-size:12px; background:#3b82f6; color:white; border:none; border-radius:6px;">立即执行</button>
+                </div>
+                <div style="padding:20px;">
+                    <div style="display:grid; grid-template-columns: 1.5fr 1fr 1fr; gap:12px; margin-bottom:16px; font-size:14px; color:#64748b;">
+                         <div>
+                             <div style="margin-bottom:4px; display:flex; align-items:center; gap:4px; color:#94a3b8; font-size:12px;">时间</div>
+                             <div style="color:#334155; font-weight:500;">2026-01-20 09:00</div>
+                         </div>
+                         <div>
+                             <div style="margin-bottom:4px; display:flex; align-items:center; gap:4px; color:#94a3b8; font-size:12px;">方式</div>
+                             <div style="color:#334155; font-weight:500;">自动短信</div>
+                         </div>
+                         <div>
+                             <div style="margin-bottom:4px; display:flex; align-items:center; gap:4px; color:#94a3b8; font-size:12px;">状态</div>
+                             <div style="color:#3b82f6; font-weight:500;">待执行</div>
+                         </div>
+                    </div>
+                    <div style="background:#f8fafc; border-radius:8px; padding:16px; border:1px solid #f1f5f9; border-left:3px solid #3b82f6;">
+                         <div style="color:#334155; font-size:14px; font-weight:600; margin-bottom:6px;">短信预览</div>
+                         <div style="font-size:14px; color:#475569; line-height:1.5;">【健康助手】您已预约1月21日上午内分泌科专家号，请携带医保卡准时就诊。</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: 注意事项 -->
+            <div style="border:1px solid #f1f5f9; border-radius:12px; background:#fff; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                 <div style="padding:16px 20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                         <div style="width:28px; height:28px; background:#3b82f6; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">2</div>
+                         <span style="font-weight:700; font-size:16px; color:#1e293b;">注意事项发送</span>
+                         <span style="background:#eff6ff; color:#3b82f6; font-size:12px; padding:2px 8px; border-radius:4px; display:flex; align-items:center; gap:4px; font-weight:500;">
+                              微信
+                         </span>
+                    </div>
+                    <span style="font-size:12px; color:#94a3b8;">预计 2026-01-20 20:00</span>
+                </div>
+                <div style="padding:20px;">
+                    <div style="background:#f8fafc; border-radius:8px; padding:16px; border:1px solid #f1f5f9; border-left:3px solid #3b82f6;">
+                         <div style="color:#334155; font-size:14px; font-weight:600; margin-bottom:6px;">提醒内容</div>
+                         <div style="font-size:14px; color:#475569; line-height:1.5;">明日就诊需空腹，请今晚10点后禁食禁水。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3 Content: 完成就医 -->
+        <div id="content-step-3" class="step-content" style="display:none; grid-template-columns: 1fr 1fr; gap:20px;">
+            <!-- Card 1: 结果录入 -->
+            <div style="border:1px solid #f1f5f9; border-radius:12px; background:#fff; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                <div style="padding:16px 20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                     <div style="display:flex; align-items:center; gap:10px;">
+                         <div style="width:28px; height:28px; background:#3b82f6; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">1</div>
+                         <span style="font-weight:700; font-size:16px; color:#1e293b;">检查结果录入</span>
+                     </div>
+                     <button class="btn-call-action" style="padding:6px 12px; font-size:14px; background:#3b82f6; color:white; border:none; border-radius:6px;">录入结果</button>
+                </div>
+                <div style="padding:20px;">
+                    <div style="font-size:14px; color:#64748b; margin-bottom:12px;">
+                        等待患者就诊完成后上传血脂全套检查报告。
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <div style="width:60px; height:60px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#94a3b8;">
+                            <svg class="icon-svg" style="width:20px; height:20px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: 满意度回访 -->
+            <div style="border:1px solid #f1f5f9; border-radius:12px; background:#fff; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                <div style="padding:16px 20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                     <div style="display:flex; align-items:center; gap:10px;">
+                         <div style="width:28px; height:28px; background:#3b82f6; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">2</div>
+                         <span style="font-weight:700; font-size:16px; color:#1e293b;">满意度回访</span>
+                         <span style="background:linear-gradient(135deg, #8b5cf6, #06b6d4); color:#fff; font-size:12px; padding:2px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
+                              <svg class="icon-svg" style="width:10px; height:10px; stroke:white;" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7H11V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"></path></svg>
+                              AI
+                         </span>
+                     </div>
+                </div>
+                <div style="padding:20px;">
+                    <div style="background:#f8fafc; border-radius:8px; padding:16px; border:1px solid #f1f5f9; border-left:3px solid #3b82f6;">
+                         <div style="color:#334155; font-size:13px; font-weight:600; margin-bottom:6px;">话术策略</div>
+                         <div style="font-size:13px; color:#475569; line-height:1.5;">询问就诊体验，确认医生建议，更新后续健康计划。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End of Execution Plan Card -->
+  </main>
+</div>
+
+<!-- 闪电悬浮球 (左下角) -->
+<div style="position: fixed; left: 24px; bottom: 24px; width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; z-index: 100;">
+  <svg class="icon-svg" style="width: 20px; height: 20px; color: #64748b;" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+</div>
+
+<script>
+function switchStep(stepId) {
+    // 1. Hide all contents
+    document.querySelectorAll('.step-content').forEach(el => {
+        el.style.display = 'none';
+    });
+    // 2. Show selected content and set display to grid
+    const activeContent = document.getElementById('content-step-' + stepId);
+    if(activeContent) {
+        activeContent.style.display = 'grid';
+    }
+
+    // 3. Update Tabs
+    for (let i = 1; i <= 3; i++) {
+        const tab = document.getElementById('tab-step-' + i);
+        const iconBg = document.getElementById('icon-bg-' + i);
+        const dot = document.getElementById('dot-' + i);
+
+        if (i === stepId) {
+            // Active Style
+            tab.style.background = '#eef2ff';
+            tab.style.borderColor = '#c7d2fe';
+            tab.style.color = '#1e293b';
+            iconBg.style.background = '#3b82f6';
+            iconBg.style.color = '#fff';
+            if(dot) {
+                dot.style.display = 'block';
+                dot.style.background = '#3b82f6';
+            }
+        } else {
+            // Inactive Style
+            tab.style.background = '#fff';
+            tab.style.borderColor = '#f1f5f9';
+            tab.style.color = '#94a3b8';
+            iconBg.style.background = '#e2e8f0';
+            iconBg.style.color = '#fff'; 
+            if(dot) dot.style.display = 'none';
+        }
+    }
+}
+</script>
+</body>
+</html>
