@@ -1659,7 +1659,7 @@ body {
       </div>
 
       <!-- 选项3：粘贴文本 -->
-      <div class="paste-row">
+      <div class="paste-row" id="btnPasteText">
         <div class="paste-left">
           <div class="paste-icon">
             <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
@@ -1808,6 +1808,44 @@ body {
   </div>
 </div>
 
+<!-- 粘贴文本模态窗 -->
+<div class="modal-overlay" id="pasteTextModal">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header">
+        <div class="modal-brand">
+            <div class="modal-brand-icon">
+                <svg class="icon-svg" style="width: 20px; height: 20px; color: white;" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </div>
+            <span>AI主动健康管理</span>
+        </div>
+      <button class="modal-close" id="closePasteTextModalBtn">
+        <svg class="icon-svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    
+    <div class="modal-subheader">
+        <button class="modal-back-btn" id="backToNewTaskFromPasteBtn">
+            <svg class="icon-svg" style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+            粘贴文本
+        </button>
+        <div style="margin-top: 8px; font-size: 14px; color: #3b82f6;">
+            将复制的文本粘贴到下方，作为AI主动健康管理的数据源
+        </div>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom: 0;">
+        <textarea class="form-control" id="pasteTextInput" placeholder="在此处粘贴文本*" style="height: 300px; resize: none; padding: 16px; font-size: 14px; line-height: 1.6;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content: flex-end; border-top: none; padding-top: 0;">
+      <button class="btn-modal-primary" id="btnConfirmPaste" style="width: auto; padding-left: 32px; padding-right: 32px;">
+        插入
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- 隐藏的文件上传 Input -->
 <input type="file" id="systemFileInput" style="display: none;" />
 
@@ -1948,6 +1986,60 @@ if (systemFileInput) {
       // 上传完成后可以重置 input 以便下次重复选择同一文件
       this.value = '';
     }
+  });
+}
+
+// 粘贴文本相关逻辑
+var btnPasteText = document.getElementById("btnPasteText");
+var pasteTextModal = document.getElementById("pasteTextModal");
+var closePasteTextModalBtn = document.getElementById("closePasteTextModalBtn");
+var backToNewTaskFromPasteBtn = document.getElementById("backToNewTaskFromPasteBtn");
+var btnConfirmPaste = document.getElementById("btnConfirmPaste");
+var pasteTextInput = document.getElementById("pasteTextInput");
+
+function openPasteTextModal() {
+  newTaskModal.classList.remove("active");
+  pasteTextModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closePasteTextModal() {
+  pasteTextModal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+function backToNewTaskFromPaste() {
+  pasteTextModal.classList.remove("active");
+  newTaskModal.classList.add("active");
+}
+
+if (btnPasteText) {
+  btnPasteText.addEventListener("click", openPasteTextModal);
+}
+if (closePasteTextModalBtn) {
+  closePasteTextModalBtn.addEventListener("click", closePasteTextModal);
+}
+if (backToNewTaskFromPasteBtn) {
+  backToNewTaskFromPasteBtn.addEventListener("click", backToNewTaskFromPaste);
+}
+if (pasteTextModal) {
+  pasteTextModal.addEventListener("click", function(e) {
+    if (e.target === pasteTextModal) {
+      closePasteTextModal();
+    }
+  });
+}
+if (btnConfirmPaste) {
+  btnConfirmPaste.addEventListener("click", function() {
+    var text = pasteTextInput.value.trim();
+    if (!text) {
+      alert("请先输入文本");
+      return;
+    }
+    alert("已获取文本内容 (长度: " + text.length + ")\n(此处可对接后续分析逻辑)");
+    closePasteTextModal();
+    // 可以选择清空输入框
+    pasteTextInput.value = "";
   });
 }
 
