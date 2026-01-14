@@ -819,16 +819,19 @@ body {
   align-items: center;
   gap: 12px;
 }
-.modal-title h3::after {
+.modal-title h3 span {
+  color: #64748b;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+.modal-title h3 span::before {
   content: "";
   display: block;
   width: 1px;
   height: 16px;
   background: #cbd5e1;
-}
-.modal-title h3 span {
-  color: #64748b;
-  font-weight: 500;
+  margin-right: 12px;
 }
 .modal-subtitle {
   font-size: 14px;
@@ -1043,6 +1046,14 @@ body {
 .btn-modal-primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+}
+.btn-modal-primary:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  background-image: none; /* Override gradient */
 }
 @media (max-width: 900px) {
   .source-grid {
@@ -1914,10 +1925,20 @@ sourceCards.forEach(function(card) {
     });
     // 选中当前
     this.classList.add("selected");
+    
+    // 立即进入对应的二级弹窗
+    if (this.id === "cardSourceDb") {
+      openConnectDbModal();
+    } else if (this.id === "cardSourceFile") {
+      openImportFileModal();
+    }
   });
 });
 
 if (btnStartAnalysis) {
+  // 初始禁用按钮
+  btnStartAnalysis.disabled = true;
+
   btnStartAnalysis.addEventListener("click", function() {
     // 检查是否选择了连接数据库卡片
     if (cardSourceDb && cardSourceDb.classList.contains("selected")) {
