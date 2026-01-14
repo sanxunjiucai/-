@@ -1808,6 +1808,9 @@ body {
   </div>
 </div>
 
+<!-- 隐藏的文件上传 Input -->
+<input type="file" id="systemFileInput" style="display: none;" />
+
 <script>
 var tabs = document.getElementById("tabs");
 var taskList = document.getElementById("taskList");
@@ -1926,14 +1929,27 @@ sourceCards.forEach(function(card) {
     // 选中当前
     this.classList.add("selected");
     
-    // 立即进入对应的二级弹窗
+    // 立即进入对应的二级弹窗或系统上传
     if (this.id === "cardSourceDb") {
       openConnectDbModal();
     } else if (this.id === "cardSourceFile") {
-      openImportFileModal();
+      // 直接调出系统文件选择框
+      document.getElementById("systemFileInput").click();
     }
   });
 });
+
+// 系统文件上传监听
+var systemFileInput = document.getElementById("systemFileInput");
+if (systemFileInput) {
+  systemFileInput.addEventListener("change", function(e) {
+    if (e.target.files && e.target.files.length > 0) {
+      alert("已选择文件：" + e.target.files[0].name + "\n(此处可对接实际上传逻辑)");
+      // 上传完成后可以重置 input 以便下次重复选择同一文件
+      this.value = '';
+    }
+  });
+}
 
 if (btnStartAnalysis) {
   // 初始禁用按钮
